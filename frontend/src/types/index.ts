@@ -60,3 +60,28 @@ export interface ApiResponse<T> {
     data?: T
     error?: string
 }
+
+export interface BackendUser {
+    id: string
+    email: string
+    createdAt: string
+    updatedAt?: string
+}
+
+export interface BackendAuthResponse {
+    success: boolean
+    message: string
+    data: {
+        user: BackendUser
+        accessToken: string
+        refreshToken: string
+    }
+}
+
+export interface BackendRefreshResponse {
+    success: boolean
+    message: string
+    data: {
+        accessToken: string
+    }
+}

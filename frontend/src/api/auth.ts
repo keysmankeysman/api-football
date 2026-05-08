@@ -1,54 +1,111 @@
-import api from './axios'
+import { backendApi } from './axios'
 import type { LoginCredentials, RegisterData, AuthResponse, User } from '@/types'
-
-// Эмуляция JWT авторизации (так как у нас нет реального бэкенда)
-// В реальном проекте здесь были бы реальные API вызовы
-
-const MOCK_USERS = new Map()
 
 export const authAPI = {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        // Эмуляция API запроса
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const mockToken = btoa(`${credentials.email}:${Date.now()}`)
-                const mockUser: User = {
-                    id: Date.now(),
-                    email: credentials.email,
-                    username: credentials.email.split('@')[0],
-                    token: mockToken
-                }
-
-                if (credentials.email === 'test@test.com' && credentials.password === '123456') {
-                    resolve({ user: mockUser, token: mockToken })
-                } else {
-                    reject(new Error('Неверный email или пароль'))
-                }
-            }, 500)
+        const response = await backendApi.post('/auth/login', {
+            email: credentials.email,
+            password: credentials.password
         })
+        
+        const { data } = response.data
+        
+        // Сохраняем refreshToken отдельно
+        if (data.refreshToken) {
+            localStorage.setItem('refreshToken', data.refreshToken)
+        }
+        
+        // Преобразуем ответ бэкенда в формат фронта
+        const user: User = {
+            id: data.user.id,
+            email: data.user.email,
+            username: data.user.email.split('@')[0], // username из email
+            token: data.accessToken
+        }
+        
+        return {
+            user,
+            token: data.accessToken
+        }
     },
 
     async register(data: RegisterData): Promise<AuthResponse> {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const mockToken = btoa(`${data.email}:${Date.now()}`)
-                const mockUser: User = {
-                    id: Date.now(),
-                    email: data.email,
-                    username: data.username,
-                    token: mockToken
-                }
-
-                resolve({ user: mockUser, token: mockToken })
-            }, 500)
+        const response = await backendApi.post('/auth/register', {
+            email: data.email,
+            password: data.password
         })
+        
+        const { data: responseData } = response.data
+        
+        // Сохраняем refreshToken отдельно
+        if (responseData.refreshToken) {
+            localStorage.setItem('refreshToken', responseData.refreshToken)
+        }
+        
+        const user: User = {
+            id: responseData.user.id,
+            email: responseData.user.email,
+            username: data.username,
+            token: responseData.accessToken
+        }
+        
+        return {
+            user,
+            token: responseData.accessToken
+        }
     },
 
     async logout(): Promise<void> {
-        return Promise.resolve()
+        try {
+            await backendApi.post('/auth/logout')
+        } catch (error) {
+            console.error('Logout error:', error)
+        } finally {
+            // В любом случае удаляем токены на клиенте
+            localStorage.removeItem('refreshToken')
+        }
     },
 
     async verifyToken(token: string): Promise<boolean> {
-        return Promise.resolve(!!token)
+        try {
+            await backendApi.get('/auth/me', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            return true
+        } catch {
+            return false
+        }
+    },
+    
+    // Получить текущего пользователя
+    async getMe(): Promise<User | null> {
+        try {
+            const response = await backendApi.get('/auth/me')
+            const { user } = response.data.data
+            return {
+                id: user.id,
+                email: user.email,
+                username: user.email.split('@')[0],
+                token: localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY) || undefined
+            }
+        } catch {
+            return null
+        }
+    },
+    
+    // Обновить профиль
+    async updateProfile(email?: string, password?: string): Promise<User | null> {
+        try {
+            const response = await backendApi.put('/auth/profile', { email, password })
+            const { user } = response.data.data
+            return {
+                id: user.id,
+                email: user.email,
+                username: user.email.split('@')[0],
+                token: localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY) || undefined
+            }
+        } catch {
+            return null
+        }
     }
 }
