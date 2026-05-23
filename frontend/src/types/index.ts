@@ -31,6 +31,8 @@ export interface League {
     strBadge: string
 }
 
+export type Competition = League
+
 export interface Team {
     idTeam: string
     strTeam: string

@@ -1,5 +1,5 @@
 import api from './axios'
-import type { League, Team, Event } from '@/types'
+import type { League, Team, Event, Competition } from '@/types'
 
 export const footballAPI = {
     async getLeagues(): Promise<League[]> {
@@ -59,5 +59,12 @@ export const footballAPI = {
             console.error('Error searching teams:', error)
             throw error
         }
+    },
+    async getCompetitions(): Promise<Competition[]> {
+        return this.getLeagues() as Promise<Competition[]>
+    },
+    async getCompetitionTeams(competitionId: number | string): Promise<Team[]> {
+        const leagueId = String(competitionId)
+        return this.getTeamsByLeague(leagueId)
     }
 }
