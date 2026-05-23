@@ -47,13 +47,11 @@ const router = createRouter({
   ]
 })
 
-// Навигационный guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const requiresAuth = to.meta.requiresAuth
   const guestOnly = to.meta.guestOnly
 
-  // Установка заголовка страницы
   if (to.meta.title) {
     document.title = `${to.meta.title} | Football App`
   }

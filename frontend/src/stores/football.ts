@@ -12,14 +12,13 @@ export const useFootballStore = defineStore('football', () => {
     const loading = ref(false)
     const error = ref<string | null>(null)
 
-    // Загрузка всех лиг
     const fetchLeagues = async () => {
         loading.value = true
         error.value = null
 
         try {
             const data = await footballAPI.getLeagues()
-            leagues.value = data.slice(0, 50) // Берем первые 50 для производительности
+            leagues.value = data.slice(0, 50)
         } catch (err: any) {
             error.value = err.message || 'Ошибка загрузки лиг'
             console.error(err)
@@ -28,7 +27,6 @@ export const useFootballStore = defineStore('football', () => {
         }
     }
 
-    // Загрузка топ лиг
     const fetchTopLeagues = async () => {
         loading.value = true
         error.value = null
@@ -44,7 +42,6 @@ export const useFootballStore = defineStore('football', () => {
         }
     }
 
-    // Загрузка команд по лиге
     const fetchTeamsByLeague = async (leagueId: string) => {
         loading.value = true
         error.value = null
@@ -62,7 +59,6 @@ export const useFootballStore = defineStore('football', () => {
         }
     }
 
-    // Загрузка деталей команды
     const fetchTeamDetails = async (teamId: string) => {
         loading.value = true
         error.value = null
@@ -71,7 +67,6 @@ export const useFootballStore = defineStore('football', () => {
             const data = await footballAPI.getTeamDetails(teamId)
             currentTeam.value = data
 
-            // Также загружаем последние матчи
             if (data) {
                 await fetchLastEvents(teamId)
             }
@@ -86,18 +81,16 @@ export const useFootballStore = defineStore('football', () => {
         }
     }
 
-    // Загрузка последних матчей
     const fetchLastEvents = async (teamId: string) => {
         try {
             const data = await footballAPI.getLastEvents(teamId)
-            lastEvents.value = data.slice(0, 10) // Последние 10 матчей
+            lastEvents.value = data.slice(0, 10)
         } catch (err: any) {
             console.error(err)
             lastEvents.value = []
         }
     }
 
-    // Поиск команд
     const searchTeams = async (query: string) => {
         loading.value = true
         error.value = null

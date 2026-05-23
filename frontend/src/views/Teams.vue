@@ -107,7 +107,6 @@ const viewTeamDetails = (teamId: string) => {
   router.push(`/team/${teamId}`)
 }
 
-// Проверяем URL параметры при монтировании
 onMounted(async () => {
   await loadLeagues()
 
@@ -118,7 +117,6 @@ onMounted(async () => {
   }
 })
 
-// Сброс при смене типа поиска
 watch(selectedLeagueId, (newVal) => {
   if (newVal) {
     searchQuery.value = ''

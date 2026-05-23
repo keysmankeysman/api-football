@@ -6,13 +6,11 @@ const api: AxiosInstance = axios.create({
     timeout: 10000,
 })
 
-// Для запросов к бэкенду (авторизация)
 export const backendApi: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
     timeout: 10000,
 })
 
-// Request interceptor для backendApi (добавляем токен)
 backendApi.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY)
@@ -26,7 +24,6 @@ backendApi.interceptors.request.use(
     }
 )
 
-// Response interceptor для backendApi (обработка 401 и refresh токена)
 let isRefreshing = false
 let failedQueue: Array<{ resolve: (value: unknown) => void; reject: (reason?: unknown) => void }> = []
 
@@ -48,7 +45,6 @@ backendApi.interceptors.response.use(
         
         if (error.response?.status === 401 && !originalRequest._retry) {
             if (isRefreshing) {
-                // Если уже идет обновление, добавляем в очередь
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject })
                 }).then(token => {
@@ -63,7 +59,6 @@ backendApi.interceptors.response.use(
             const refreshToken = localStorage.getItem('refreshToken')
             
             if (!refreshToken) {
-                // Нет refresh токена - принудительный выход
                 localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_KEY)
                 localStorage.removeItem(import.meta.env.VITE_AUTH_USER_KEY)
                 localStorage.removeItem('refreshToken')
@@ -78,15 +73,10 @@ backendApi.interceptors.response.use(
                 
                 const newAccessToken = response.data.data.accessToken
                 localStorage.setItem(import.meta.env.VITE_AUTH_TOKEN_KEY, newAccessToken)
-                
-                // Обрабатываем очередь запросов
                 processQueue(null, newAccessToken)
-                
-                // Повторяем исходный запрос
                 originalRequest.headers!.Authorization = `Bearer ${newAccessToken}`
                 return backendApi(originalRequest)
             } catch (refreshError) {
-                // Refresh токен тоже протух - выходим
                 processQueue(refreshError as Error, null)
                 localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_KEY)
                 localStorage.removeItem(import.meta.env.VITE_AUTH_USER_KEY)
@@ -102,7 +92,6 @@ backendApi.interceptors.response.use(
     }
 )
 
-// Старый интерцептор для TheSportsDB API (без авторизации)
 api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => config,
     (error: AxiosError) => Promise.reject(error)

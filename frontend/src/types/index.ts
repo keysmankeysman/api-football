@@ -22,7 +22,6 @@ export interface AuthResponse {
     token: string
 }
 
-// Football API Types
 export interface League {
     idLeague: string
     strLeague: string

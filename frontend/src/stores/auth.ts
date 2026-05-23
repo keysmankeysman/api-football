@@ -14,7 +14,6 @@ export const useAuthStore = defineStore('auth', () => {
     const isAuthenticated = computed(() => !!token.value && !!user.value)
     const currentUser = computed(() => user.value)
 
-    // Инициализация из localStorage
     const initAuth = async () => {
         const storedToken = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY)
         const storedUser = localStorage.getItem(import.meta.env.VITE_AUTH_USER_KEY)
@@ -23,10 +22,8 @@ export const useAuthStore = defineStore('auth', () => {
             token.value = storedToken
             user.value = JSON.parse(storedUser)
             
-            // Проверяем валидность токена на бэкенде
             const isValid = await authAPI.verifyToken(storedToken)
             if (!isValid) {
-                // Токен невалидный - пробуем обновить
                 const refreshToken = localStorage.getItem('refreshToken')
                 if (refreshToken) {
                     try {
@@ -37,7 +34,6 @@ export const useAuthStore = defineStore('auth', () => {
                         localStorage.setItem(import.meta.env.VITE_AUTH_TOKEN_KEY, newToken)
                         token.value = newToken
                     } catch {
-                        // Не удалось обновить - выходим
                         logout()
                     }
                 } else {
@@ -47,7 +43,6 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    // Логин
     const login = async (credentials: LoginCredentials) => {
         loading.value = true
         error.value = null
@@ -70,7 +65,6 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    // Регистрация
     const register = async (data: RegisterData) => {
         loading.value = true
         error.value = null
@@ -93,7 +87,6 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    // Логаут
     const logout = async () => {
         loading.value = true
 
@@ -106,13 +99,12 @@ export const useAuthStore = defineStore('auth', () => {
             token.value = null
             localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_KEY)
             localStorage.removeItem(import.meta.env.VITE_AUTH_USER_KEY)
-            localStorage.removeItem('refreshToken')  // добавить эту строку
+            localStorage.removeItem('refreshToken') 
             await router.push('/login')
             loading.value = false
         }
     }
 
-    // Очистка ошибок
     const clearError = () => {
         error.value = null
     }

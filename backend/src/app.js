@@ -6,18 +6,14 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 
-// Connect to MongoDB
 connectDB();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use("/api/auth", authRoutes);
 
-// Health check route
 app.get("/health", (req, res) => {
   res.json({
     success: true,
@@ -26,7 +22,6 @@ app.get("/health", (req, res) => {
   });
 });
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -34,7 +29,6 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode);

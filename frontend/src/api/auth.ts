@@ -10,16 +10,14 @@ export const authAPI = {
         
         const { data } = response.data
         
-        // Сохраняем refreshToken отдельно
         if (data.refreshToken) {
             localStorage.setItem('refreshToken', data.refreshToken)
         }
         
-        // Преобразуем ответ бэкенда в формат фронта
         const user: User = {
             id: data.user.id,
             email: data.user.email,
-            username: data.user.email.split('@')[0], // username из email
+            username: data.user.email.split('@')[0],
             token: data.accessToken
         }
         
@@ -37,7 +35,6 @@ export const authAPI = {
         
         const { data: responseData } = response.data
         
-        // Сохраняем refreshToken отдельно
         if (responseData.refreshToken) {
             localStorage.setItem('refreshToken', responseData.refreshToken)
         }
@@ -61,7 +58,6 @@ export const authAPI = {
         } catch (error) {
             console.error('Logout error:', error)
         } finally {
-            // В любом случае удаляем токены на клиенте
             localStorage.removeItem('refreshToken')
         }
     },
@@ -77,7 +73,6 @@ export const authAPI = {
         }
     },
     
-    // Получить текущего пользователя
     async getMe(): Promise<User | null> {
         try {
             const response = await backendApi.get('/auth/me')
@@ -93,7 +88,6 @@ export const authAPI = {
         }
     },
     
-    // Обновить профиль
     async updateProfile(email?: string, password?: string): Promise<User | null> {
         try {
             const response = await backendApi.put('/auth/profile', { email, password })

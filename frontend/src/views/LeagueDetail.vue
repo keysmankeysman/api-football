@@ -66,11 +66,9 @@ const loadLeagueData = async () => {
   error.value = ''
 
   try {
-    // Для получения информации о лиге и командах используем разные эндпоинты
     const teamsData = await footballApi.getCompetitionTeams(leagueId)
-    teams.value = teamsData.slice(0, 20) // Показываем первые 20 команд
+    teams.value = teamsData.slice(0, 20)
 
-    // Информацию о лиге получаем из списка всех лиг (упрощенно)
     const allLeagues = await footballApi.getCompetitions()
     const foundLeague = allLeagues.find((l) => l.id === leagueId)
     league.value = foundLeague || null

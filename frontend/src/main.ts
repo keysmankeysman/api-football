@@ -9,7 +9,6 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 
-// Инициализация хранилища auth
 import { useAuthStore } from './stores/auth'
 const authStore = useAuthStore()
 authStore.initAuth()

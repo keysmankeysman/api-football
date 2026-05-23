@@ -46,9 +46,7 @@ import type { LoginCredentials } from '@/types'
 const authStore = useAuthStore()
 const credentials = reactive<LoginCredentials>({
   email: '',
-  password: '',
-  // email: 'test@test.com',
-  // password: '123456',
+  password: ''
 })
 
 const handleLogin = async () => {

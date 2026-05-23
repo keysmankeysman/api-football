@@ -14,26 +14,22 @@ const {
 const register = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Basic validation
   if (!email || !password) {
     res.status(400);
     throw new Error('Please provide email and password');
   }
 
-  // Validate email format
   const emailRegex = /^\S+@\S+\.\S+$/;
   if (!emailRegex.test(email)) {
     res.status(400);
     throw new Error('Please provide a valid email');
   }
 
-  // Validate password length
   if (password.length < 6) {
     res.status(400);
     throw new Error('Password must be at least 6 characters');
   }
 
-  // Check if user already exists
   const userExists = await User.findOne({ email: email.toLowerCase() });
 
   if (userExists) {
@@ -41,17 +37,14 @@ const register = asyncHandler(async (req, res) => {
     throw new Error('User with this email already exists');
   }
 
-  // Create user
   const user = await User.create({
     email,
     password,
   });
 
-  // Generate tokens
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);
 
-  // Save refresh token to database
   user.refreshToken = refreshToken;
   await user.save();
 
@@ -78,13 +71,11 @@ const register = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Basic validation
   if (!email || !password) {
     res.status(400);
     throw new Error('Please provide email and password');
   }
 
-  // Find user and include password field
   const user = await User.findOne({ email: email.toLowerCase() }).select(
     '+password'
   );
@@ -94,7 +85,6 @@ const login = asyncHandler(async (req, res) => {
     throw new Error('Invalid email or password');
   }
 
-  // Check password
   const isPasswordMatch = await user.comparePassword(password);
 
   if (!isPasswordMatch) {
@@ -102,11 +92,9 @@ const login = asyncHandler(async (req, res) => {
     throw new Error('Invalid email or password');
   }
 
-  // Generate tokens
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);
 
-  // Save refresh token to database
   user.refreshToken = refreshToken;
   await user.save();
 
@@ -138,7 +126,6 @@ const refresh = asyncHandler(async (req, res) => {
     throw new Error('Refresh token is required');
   }
 
-  // Verify refresh token
   let decoded;
   try {
     decoded = verifyRefreshToken(refreshToken);
@@ -147,7 +134,6 @@ const refresh = asyncHandler(async (req, res) => {
     throw new Error('Invalid or expired refresh token');
   }
 
-  // Find user and check if refresh token matches
   const user = await User.findById(decoded.userId).select('+refreshToken');
 
   if (!user) {
@@ -160,7 +146,6 @@ const refresh = asyncHandler(async (req, res) => {
     throw new Error('Invalid refresh token');
   }
 
-  // Generate new access token
   const newAccessToken = generateAccessToken(user._id);
 
   res.json({
@@ -178,7 +163,6 @@ const refresh = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const logout = asyncHandler(async (req, res) => {
-  // Remove refresh token from database
   req.user.refreshToken = null;
   await req.user.save();
 
@@ -222,16 +206,13 @@ const updateProfile = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 
-  // Update email if provided
   if (email) {
-    // Validate email format
     const emailRegex = /^\S+@\S+\.\S+$/;
     if (!emailRegex.test(email)) {
       res.status(400);
       throw new Error('Please provide a valid email');
     }
 
-    // Check if email is already taken by another user
     const emailExists = await User.findOne({
       email: email.toLowerCase(),
       _id: { $ne: user._id },
@@ -245,9 +226,7 @@ const updateProfile = asyncHandler(async (req, res) => {
     user.email = email;
   }
 
-  // Update password if provided
   if (password) {
-    // Validate password length
     if (password.length < 6) {
       res.status(400);
       throw new Error('Password must be at least 6 characters');

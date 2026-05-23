@@ -2,7 +2,6 @@ import api from './axios'
 import type { League, Team, Event } from '@/types'
 
 export const footballAPI = {
-    // Получить список лиг
     async getLeagues(): Promise<League[]> {
         try {
             const response = await api.get('/all_leagues.php')
@@ -13,9 +12,8 @@ export const footballAPI = {
         }
     },
 
-    // Получить топ-5 лиги (АПЛ, Ла Лига и т.д.)
     async getTopLeagues(): Promise<League[]> {
-        const leagueIds = ['4328', '4331', '4332', '4334', '4335'] // ID топ лиг
+        const leagueIds = ['4328', '4331', '4332', '4334', '4335'] 
         const promises = leagueIds.map(id =>
             api.get(`/lookupleague.php?id=${id}`)
         )
@@ -23,7 +21,6 @@ export const footballAPI = {
         return responses.map(res => res.data.leagues[0]).filter(Boolean)
     },
 
-    // Поиск команд по лиге
     async getTeamsByLeague(leagueId: string): Promise<Team[]> {
         try {
             const response = await api.get(`/lookup_all_teams.php?id=${leagueId}`)
@@ -34,7 +31,6 @@ export const footballAPI = {
         }
     },
 
-    // Получить детали команды
     async getTeamDetails(teamId: string): Promise<Team | null> {
         try {
             const response = await api.get(`/lookupteam.php?id=${teamId}`)
@@ -45,7 +41,6 @@ export const footballAPI = {
         }
     },
 
-    // Получить последние матчи команды
     async getLastEvents(teamId: string): Promise<Event[]> {
         try {
             const response = await api.get(`/eventslast.php?id=${teamId}`)
@@ -56,7 +51,6 @@ export const footballAPI = {
         }
     },
 
-    // Поиск команд
     async searchTeams(teamName: string): Promise<Team[]> {
         try {
             const response = await api.get(`/searchteams.php?t=${teamName}`)

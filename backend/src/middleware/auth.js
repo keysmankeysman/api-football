@@ -9,7 +9,6 @@ const protect = async (req, res, next) => {
   try {
     let token;
 
-    // Check for token in Authorization header
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith('Bearer')
@@ -24,10 +23,8 @@ const protect = async (req, res, next) => {
       });
     }
 
-    // Verify token
     const decoded = verifyAccessToken(token);
 
-    // Get user from token
     const user = await User.findById(decoded.userId);
 
     if (!user) {
@@ -37,7 +34,6 @@ const protect = async (req, res, next) => {
       });
     }
 
-    // Attach user to request
     req.user = user;
     next();
   } catch (error) {
