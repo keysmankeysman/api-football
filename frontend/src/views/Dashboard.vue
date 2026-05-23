@@ -135,11 +135,13 @@ const viewLeagueTeams = (leagueId: string) => {
 onMounted(async () => {
   await loadTopLeagues()
 
-  if (footballStore.topLeagues.value.length > 0) {
-    const firstLeague = footballStore.topLeagues.value[0]
-    const teams = await footballStore.fetchTeamsByLeague(firstLeague.idLeague)
-    teamsCount.value = teams.length
-    matchesCount.value = Math.floor(Math.random() * 100) + 50 
+  if (footballStore.topLeagues.length > 0) {
+    const firstLeague = footballStore.topLeagues[0]
+    if (firstLeague) {
+      const teams = await footballStore.fetchTeamsByLeague(firstLeague.idLeague)
+      teamsCount.value = teams.length
+      matchesCount.value = Math.floor(Math.random() * 100) + 50 
+    }
   }
 })
 </script>
